@@ -1,0 +1,343 @@
+<!--
+  ============================================================
+  dual-plan render template
+  ------------------------------------------------------------
+  When dual-plan skill writes plan.html, it copies this file
+  and performs FOUR substitutions:
+
+    1. <title> tag             → plan title or slug
+    2. .masthead-left span     → relative path (e.g. plans/2026-05-10-foo/plan.md)
+    3. .masthead-right .stamp  → "YYYY-MM-DD · HH:MM" of last render
+    4. <script id="plan-source"> contents → the entire plan.md text
+
+  Everything else (styling, theme toggle, mermaid setup,
+  marked tokenizer fix) stays as-is.
+  ============================================================
+-->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>plan.md — rendered</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #fbfaf6;
+    --surface: #f4f1ea;
+    --surface-2: #ede8dc;
+    --ink: #1a1815;
+    --ink-soft: #56524a;
+    --ink-faint: #8c8576;
+    --rule: #e2ddd2;
+    --rule-soft: #ece8de;
+    --accent: #a8451f;
+    --accent-soft: #f0e2d8;
+    --accent-2: #2c6260;
+    --code-bg: #f6f3eb;
+    --code-border: #e2ddd2;
+    --shadow: 0 1px 2px rgba(26,24,21,0.04), 0 4px 12px rgba(26,24,21,0.04);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14130f;
+      --surface: #1d1c17;
+      --surface-2: #25241e;
+      --ink: #e8e3d6;
+      --ink-soft: #a8a294;
+      --ink-faint: #6e6a5e;
+      --rule: #2a2823;
+      --rule-soft: #1f1e19;
+      --accent: #d97a4e;
+      --accent-soft: #2a1f17;
+      --accent-2: #6db8b4;
+      --code-bg: #1a1914;
+      --code-border: #2a2823;
+      --shadow: 0 1px 2px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.3);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14130f;
+    --surface: #1d1c17;
+    --surface-2: #25241e;
+    --ink: #e8e3d6;
+    --ink-soft: #a8a294;
+    --ink-faint: #6e6a5e;
+    --rule: #2a2823;
+    --rule-soft: #1f1e19;
+    --accent: #d97a4e;
+    --accent-soft: #2a1f17;
+    --accent-2: #6db8b4;
+    --code-bg: #1a1914;
+    --code-border: #2a2823;
+    --shadow: 0 1px 2px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.3);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; transition: background 0.3s ease; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Source Sans 3', -apple-system, sans-serif; font-size: 17px; line-height: 1.72; font-weight: 400; transition: color 0.3s ease; }
+
+  .masthead { border-bottom: 1px solid var(--rule); background: color-mix(in srgb, var(--bg) 88%, transparent); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .masthead-inner { max-width: 760px; margin: 0 auto; padding: 12px 32px; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.04em; }
+  .masthead-left { display: flex; align-items: center; gap: 10px; }
+  .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .masthead-right { display: flex; gap: 16px; align-items: center; }
+
+  .theme-toggle { background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 0; font-family: inherit; transition: border-color 0.2s; }
+  .theme-toggle:hover { border-color: var(--ink-faint); }
+  .theme-toggle .opt { width: 24px; height: 24px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-faint); transition: all 0.2s; background: transparent; border: none; cursor: pointer; }
+  .theme-toggle .opt.active { background: var(--ink); color: var(--bg); }
+  .theme-toggle .opt svg { width: 13px; height: 13px; stroke-width: 1.8; }
+
+  .doc { max-width: 720px; margin: 0 auto; padding: 64px 32px 120px; }
+
+  .doc h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 44px; line-height: 1.15; letter-spacing: -0.018em; margin-bottom: 12px; font-variation-settings: "opsz" 96; }
+  .doc > h1:first-child + p { color: var(--ink-soft); font-size: 19px; line-height: 1.55; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+  .doc h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 28px; line-height: 1.25; letter-spacing: -0.012em; margin-top: 56px; margin-bottom: 16px; font-variation-settings: "opsz" 48; position: relative; }
+  .doc h2::before { content: ''; position: absolute; left: -24px; top: 0.55em; width: 12px; height: 2px; background: var(--accent); }
+  .doc h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; line-height: 1.35; margin-top: 36px; margin-bottom: 10px; font-variation-settings: "opsz" 24; }
+  .doc h4 { font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-top: 28px; margin-bottom: 8px; }
+
+  .doc p { margin-bottom: 18px; }
+  .doc strong { font-weight: 600; }
+  .doc em { font-style: italic; }
+  .doc a { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); padding-bottom: 1px; transition: border-color 0.15s; }
+  .doc a:hover { border-bottom-color: var(--accent); }
+
+  .doc ul, .doc ol { margin-bottom: 18px; padding-left: 24px; }
+  .doc li { margin-bottom: 6px; padding-left: 4px; }
+  .doc ul li::marker { color: var(--accent); }
+  .doc ol li::marker { color: var(--accent); font-variant-numeric: tabular-nums; font-weight: 500; }
+
+  .doc code { font-family: 'JetBrains Mono', monospace; font-size: 0.86em; background: var(--code-bg); border: 1px solid var(--code-border); padding: 1px 6px; border-radius: 4px; color: var(--accent); }
+  .doc pre { background: var(--code-bg); border: 1px solid var(--code-border); border-left: 3px solid var(--accent); border-radius: 4px; padding: 16px 20px; margin: 20px 0; overflow-x: auto; font-size: 13.5px; line-height: 1.6; }
+  .doc pre code { background: transparent; border: none; padding: 0; color: var(--ink); }
+
+  .doc blockquote { border-left: 3px solid var(--rule); padding: 4px 0 4px 20px; margin: 20px 0; color: var(--ink-soft); font-style: italic; }
+  .doc hr { border: none; height: 1px; background: var(--rule); margin: 48px 0; }
+
+  .doc table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 15px; }
+  .doc th { text-align: left; padding: 10px 12px; background: var(--surface); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); border-bottom: 1px solid var(--rule); }
+  .doc td { padding: 10px 12px; border-bottom: 1px solid var(--rule-soft); }
+  .doc tr:last-child td { border-bottom: none; }
+
+  .mermaid { margin: 28px auto; text-align: center; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 24px; overflow-x: auto; }
+
+  .doc input[type="checkbox"] { margin-right: 8px; accent-color: var(--accent); }
+  .doc li:has(> input[type="checkbox"]) { list-style: none; margin-left: -20px; }
+
+  /* ---- Optional per-plan rich features (used only if plan.md embeds them) ---- */
+  .figure { margin: 32px 0; }
+  .figure-svg { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 32px 24px; display: block; width: 100%; height: auto; }
+  .figure-caption { margin-top: 12px; font-size: 13px; color: var(--ink-faint); text-align: center; font-style: italic; }
+  .figure-caption strong { font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-right: 8px; }
+
+  .tuner { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 28px; margin: 28px 0; box-shadow: var(--shadow); }
+  .tuner-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+  .tuner-header h4 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 20px; color: var(--ink); text-transform: none; letter-spacing: 0; margin: 0; }
+  .tuner-header .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+  .control { margin-bottom: 22px; }
+  .control:last-child { margin-bottom: 0; }
+  .control-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; gap: 16px; }
+  .control-label { font-size: 14px; font-weight: 500; color: var(--ink); }
+  .control-label small { display: block; font-weight: 400; color: var(--ink-faint); font-size: 12px; margin-top: 2px; }
+  .control-value { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); background: var(--accent-soft); padding: 2px 10px; border-radius: 999px; font-weight: 500; min-width: 70px; text-align: center; }
+  .slider { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: var(--rule); border-radius: 999px; outline: none; margin-top: 4px; }
+  .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 3px solid var(--bg); box-shadow: 0 0 0 1px var(--accent); transition: transform 0.1s; }
+  .slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  .slider::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 3px solid var(--bg); box-shadow: 0 0 0 1px var(--accent); }
+  .segmented { display: inline-flex; background: var(--surface-2); border-radius: 6px; padding: 3px; gap: 2px; }
+  .segmented button { background: transparent; border: none; padding: 6px 14px; font-family: inherit; font-size: 13px; color: var(--ink-soft); cursor: pointer; border-radius: 4px; transition: all 0.15s; }
+  .segmented button.active { background: var(--bg); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  .preview { margin-top: 18px; padding: 14px 16px; background: var(--bg); border: 1px dashed var(--rule); border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; }
+  .preview .v { color: var(--accent); font-weight: 500; }
+  .export-row { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .export-btn { background: var(--ink); color: var(--bg); border: none; padding: 10px 20px; font-family: inherit; font-size: 14px; font-weight: 500; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.1s, opacity 0.15s; }
+  .export-btn:hover { opacity: 0.9; }
+  .export-btn:active { transform: translateY(1px); }
+  .export-btn.copied { background: var(--accent-2); color: var(--bg); }
+  .export-hint { font-size: 12px; color: var(--ink-faint); font-style: italic; }
+
+  @media print { .masthead, .tuner, .theme-toggle { display: none; } body { background: white; color: black; } .doc { max-width: none; padding: 0; } }
+  @media (max-width: 640px) { .doc { padding: 40px 22px 80px; } .doc h1 { font-size: 34px; } .doc h2 { font-size: 24px; } .doc h2::before { display: none; } .masthead-inner { padding: 10px 22px; } .masthead-right .hide-sm { display: none; } .tuner { padding: 20px; } .export-row { flex-direction: column; align-items: stretch; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-left">
+      <span class="dot"></span>
+      <span>plan.md</span>
+    </div>
+    <div class="masthead-right">
+      <span class="hide-sm">rendered from plan.md</span>
+      <span class="stamp">—</span>
+      <div class="theme-toggle" role="group" aria-label="Theme">
+        <button class="opt" data-theme-set="light" title="Light">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
+        <button class="opt" data-theme-set="auto" title="Auto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+        </button>
+        <button class="opt" data-theme-set="dark" title="Dark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PLAN MARKDOWN — Claude replaces the contents of this script
+     tag with the full text of plan.md when rendering.
+     ============================================================ -->
+<script type="text/markdown" id="plan-source">
+# (Empty plan)
+
+> 此處應為 plan.md 內容。如果你看到這段文字,代表 dual-plan skill 還沒把 markdown 注入這個 template。
+</script>
+
+<main class="doc" id="out"></main>
+
+<script>
+  // ============================================================
+  // THEME (light / auto / dark) with localStorage persistence
+  // ============================================================
+  const THEME_KEY = 'dual-plan-theme';
+  const root = document.documentElement;
+
+  function applyTheme(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    document.querySelectorAll('.theme-toggle .opt').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.themeSet === mode);
+    });
+    try { localStorage.setItem(THEME_KEY, mode); } catch (e) {}
+    setTimeout(rerenderMermaid, 50);
+  }
+
+  document.querySelectorAll('.theme-toggle .opt').forEach(btn => {
+    btn.addEventListener('click', () => applyTheme(btn.dataset.themeSet));
+  });
+
+  let storedTheme = 'auto';
+  try { storedTheme = localStorage.getItem(THEME_KEY) || 'auto'; } catch (e) {}
+  applyTheme(storedTheme);
+
+  // ============================================================
+  // MARKDOWN PRE-PROCESSOR — fixes the blank-line-in-raw-HTML bug
+  //
+  // CommonMark / marked terminate raw HTML blocks at the first
+  // blank line, which breaks SVGs and other multi-line HTML.
+  // We walk lines, track open/close depth of common block tags,
+  // and replace blank lines INSIDE such blocks with <!---->.
+  // ============================================================
+  function protectHtmlBlocks(md) {
+    const tags = 'div|svg|figure|section|aside|nav|article|table|form|main|header|footer|details|dialog';
+    const both = new RegExp(`<(${tags})\\b|</(${tags})>`, 'g');
+
+    const lines = md.split('\n');
+    const out = [];
+    let depth = 0;
+
+    for (const line of lines) {
+      let opens = 0, closes = 0, m;
+      both.lastIndex = 0;
+      while ((m = both.exec(line)) !== null) {
+        if (m[2]) closes++; else opens++;
+      }
+
+      if (depth === 0 && opens > 0 && line.trimStart().startsWith('<')) {
+        depth = opens - closes;
+        if (depth < 0) depth = 0;
+        out.push(line);
+      } else if (depth > 0) {
+        if (line.trim() === '') out.push('<!---->');
+        else out.push(line);
+        depth += opens - closes;
+        if (depth < 0) depth = 0;
+      } else {
+        out.push(line);
+      }
+    }
+
+    return out.join('\n');
+  }
+
+  // ============================================================
+  // RENDER MARKDOWN
+  // ============================================================
+  marked.setOptions({ breaks: false, gfm: true });
+
+  const rawSource = document.getElementById('plan-source').textContent;
+  const protectedSource = protectHtmlBlocks(rawSource);
+  const out = document.getElementById('out');
+  out.innerHTML = marked.parse(protectedSource);
+
+  // ============================================================
+  // MERMAID — convert ```mermaid blocks and theme-match
+  // ============================================================
+  function rerenderMermaid() {
+    const isDark = root.getAttribute('data-theme') === 'dark' ||
+      (!root.hasAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    out.querySelectorAll('pre code.language-mermaid').forEach(block => {
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = block.textContent;
+      div.dataset.source = block.textContent;
+      block.parentElement.replaceWith(div);
+    });
+
+    document.querySelectorAll('.mermaid').forEach(el => {
+      if (el.dataset.source) el.textContent = el.dataset.source;
+      el.removeAttribute('data-processed');
+    });
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      themeVariables: {
+        fontFamily: '"Source Sans 3", sans-serif',
+        fontSize: '14px',
+        primaryColor: isDark ? '#2a1f17' : '#f0e2d8',
+        primaryTextColor: isDark ? '#e8e3d6' : '#1a1815',
+        primaryBorderColor: isDark ? '#d97a4e' : '#a8451f',
+        lineColor: isDark ? '#a8a294' : '#56524a',
+        secondaryColor: isDark ? '#1d1c17' : '#f4f1ea',
+        tertiaryColor: isDark ? '#14130f' : '#fbfaf6',
+      }
+    });
+    mermaid.run({ querySelector: '.mermaid' });
+  }
+  rerenderMermaid();
+
+  // ============================================================
+  // GENERIC COPY-AS-PROMPT — any element with [data-copy-prompt]
+  // attribute will copy its attribute value to the clipboard.
+  // For per-plan tuners with custom logic, plan.md should embed
+  // its own click handlers.
+  // ============================================================
+  document.querySelectorAll('[data-copy-prompt]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copyPrompt);
+        const original = btn.innerHTML;
+        btn.classList.add('copied');
+        btn.innerHTML = '✓ Copied';
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = original; }, 2000);
+      } catch (e) { alert('複製失敗:' + e.message); }
+    });
+  });
+</script>
+
+</body>
+</html>

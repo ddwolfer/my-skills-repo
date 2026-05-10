@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dual-plan · README</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfaf6;
+    --surface: #f4f1ea;
+    --surface-2: #ede8dc;
+    --ink: #1a1815;
+    --ink-soft: #56524a;
+    --ink-faint: #8c8576;
+    --rule: #e2ddd2;
+    --rule-soft: #ece8de;
+    --accent: #a8451f;
+    --accent-soft: #f0e2d8;
+    --accent-2: #2c6260;
+    --code-bg: #f6f3eb;
+    --code-border: #e2ddd2;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14130f; --surface: #1d1c17; --surface-2: #25241e;
+      --ink: #e8e3d6; --ink-soft: #a8a294; --ink-faint: #6e6a5e;
+      --rule: #2a2823; --rule-soft: #1f1e19;
+      --accent: #d97a4e; --accent-soft: #2a1f17; --accent-2: #6db8b4;
+      --code-bg: #1a1914; --code-border: #2a2823;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14130f; --surface: #1d1c17; --surface-2: #25241e;
+    --ink: #e8e3d6; --ink-soft: #a8a294; --ink-faint: #6e6a5e;
+    --rule: #2a2823; --rule-soft: #1f1e19;
+    --accent: #d97a4e; --accent-soft: #2a1f17; --accent-2: #6db8b4;
+    --code-bg: #1a1914; --code-border: #2a2823;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; transition: background 0.3s; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Source Sans 3', -apple-system, sans-serif; font-size: 17px; line-height: 1.72; transition: color 0.3s; }
+
+  /* Masthead */
+  .masthead { border-bottom: 1px solid var(--rule); background: color-mix(in srgb, var(--bg) 88%, transparent); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(10px); }
+  .masthead-inner { max-width: 880px; margin: 0 auto; padding: 12px 32px; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.04em; }
+  .masthead-left { display: flex; align-items: center; gap: 10px; }
+  .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .theme-toggle { background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: 4px; display: inline-flex; }
+  .theme-toggle .opt { width: 24px; height: 24px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-faint); transition: all 0.2s; background: transparent; border: none; cursor: pointer; }
+  .theme-toggle .opt.active { background: var(--ink); color: var(--bg); }
+  .theme-toggle .opt svg { width: 13px; height: 13px; stroke-width: 1.8; }
+
+  /* Page */
+  .page { max-width: 880px; margin: 0 auto; padding: 64px 32px 120px; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 80px; padding-bottom: 56px; border-bottom: 1px solid var(--rule); }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; }
+  .hero h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 64px; line-height: 1.05; letter-spacing: -0.02em; font-variation-settings: "opsz" 96; }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero .lede { font-size: 21px; line-height: 1.5; color: var(--ink-soft); max-width: 640px; }
+  .hero .meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.1em; display: flex; gap: 24px; flex-wrap: wrap; padding-top: 16px; border-top: 1px dashed var(--rule); }
+  .hero .meta .k { color: var(--accent); }
+
+  /* Sections */
+  section { margin-bottom: 72px; }
+  .section-head { display: grid; grid-template-columns: 64px 1fr; gap: 20px; align-items: baseline; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+  .section-num { font-family: 'Fraunces', serif; font-style: italic; font-size: 44px; line-height: 1; color: var(--accent); font-weight: 400; }
+  .section-title { font-family: 'Fraunces', serif; font-weight: 500; font-size: 32px; line-height: 1.1; letter-spacing: -0.012em; font-variation-settings: "opsz" 48; }
+  .section-title small { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--ink-faint); margin-top: 8px; font-style: normal; text-transform: uppercase; font-weight: 400; }
+
+  .prose { max-width: 720px; }
+  .prose p { margin-bottom: 18px; }
+  .prose p strong { color: var(--ink); font-weight: 600; }
+  .prose code { font-family: 'JetBrains Mono', monospace; font-size: 0.86em; background: var(--code-bg); border: 1px solid var(--code-border); padding: 1px 6px; border-radius: 4px; color: var(--accent); }
+
+  /* Diagram */
+  .figure-svg { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 32px 24px; display: block; width: 100%; height: auto; margin: 24px 0; }
+  .figure-caption { font-size: 13px; color: var(--ink-faint); text-align: center; font-style: italic; margin-top: -12px; margin-bottom: 24px; }
+  .figure-caption strong { font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-right: 8px; }
+
+  /* Two-column lists for use/skip */
+  .matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .matrix-cell { padding: 22px 24px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+  .matrix-cell.yes { border-left: 4px solid var(--accent-2); }
+  .matrix-cell.no { border-left: 4px solid var(--accent); }
+  .matrix-cell .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; display: inline-block; }
+  .matrix-cell.yes .tag { color: var(--accent-2); }
+  .matrix-cell.no .tag { color: var(--accent); }
+  .matrix-cell h4 { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; font-size: 22px; margin-bottom: 12px; color: var(--ink); }
+  .matrix-cell ul { list-style: none; font-size: 14.5px; color: var(--ink-soft); }
+  .matrix-cell ul li { padding: 4px 0; padding-left: 22px; position: relative; }
+  .matrix-cell.yes ul li::before { content: '✓'; position: absolute; left: 0; color: var(--accent-2); font-weight: 700; }
+  .matrix-cell.no ul li::before { content: '×'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  /* Step cards */
+  .steps { counter-reset: step; margin: 24px 0; }
+  .step { display: grid; grid-template-columns: 60px 1fr; gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--rule-soft); }
+  .step:last-child { border-bottom: none; }
+  .step::before { counter-increment: step; content: counter(step, decimal-leading-zero); font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); font-weight: 500; padding-top: 4px; letter-spacing: 0.05em; }
+  .step h4 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 20px; line-height: 1.3; margin-bottom: 6px; color: var(--ink); }
+  .step p { font-size: 15px; color: var(--ink-soft); line-height: 1.55; margin: 0; }
+  .step code { font-family: 'JetBrains Mono', monospace; font-size: 0.86em; background: var(--code-bg); border: 1px solid var(--code-border); padding: 1px 6px; border-radius: 4px; color: var(--accent); }
+
+  /* File tree */
+  .tree { background: var(--code-bg); border: 1px solid var(--code-border); border-left: 3px solid var(--accent); border-radius: 4px; padding: 22px 26px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.85; color: var(--ink); margin: 24px 0; white-space: pre; overflow-x: auto; }
+  .tree .dim { color: var(--ink-faint); }
+  .tree .red { color: var(--accent); font-weight: 500; }
+  .tree .blue { color: var(--accent-2); font-weight: 500; }
+  .tree .annot { color: var(--ink-faint); font-style: italic; font-family: 'Source Sans 3', sans-serif; font-size: 13px; white-space: normal; }
+
+  /* FAQ */
+  .faq-item { padding: 20px 0; border-bottom: 1px solid var(--rule-soft); }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-q { font-family: 'Fraunces', serif; font-weight: 500; font-size: 18px; margin-bottom: 8px; color: var(--ink); }
+  .faq-q::before { content: 'Q · '; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+  .faq-a { font-size: 15px; color: var(--ink-soft); line-height: 1.6; padding-left: 26px; }
+  .faq-a code { font-family: 'JetBrains Mono', monospace; font-size: 0.86em; background: var(--code-bg); padding: 1px 6px; border-radius: 4px; color: var(--accent); border: 1px solid var(--code-border); }
+
+  /* Code snippet */
+  .codeblock { background: var(--code-bg); border: 1px solid var(--code-border); border-left: 3px solid var(--accent); border-radius: 4px; padding: 16px 20px; margin: 20px 0; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.6; overflow-x: auto; color: var(--ink); }
+
+  /* Colophon */
+  .colophon { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: var(--ink-faint); }
+  .colophon strong { color: var(--accent); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .hero, section { animation: fadeUp 0.7s ease both; }
+  section:nth-of-type(1) { animation-delay: 0.05s; }
+  section:nth-of-type(2) { animation-delay: 0.1s; }
+  section:nth-of-type(3) { animation-delay: 0.15s; }
+  section:nth-of-type(4) { animation-delay: 0.2s; }
+  section:nth-of-type(5) { animation-delay: 0.25s; }
+  section:nth-of-type(6) { animation-delay: 0.3s; }
+
+  @media (max-width: 700px) {
+    .page { padding: 40px 22px 80px; }
+    .hero h1 { font-size: 44px; }
+    .hero .lede { font-size: 18px; }
+    .matrix { grid-template-columns: 1fr; }
+    .section-head { grid-template-columns: 44px 1fr; }
+    .section-num { font-size: 30px; }
+    .section-title { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-left">
+      <span class="dot"></span>
+      <span>~/.claude/skills/dual-plan/README.html</span>
+    </div>
+    <div class="theme-toggle" role="group" aria-label="Theme">
+      <button class="opt" data-theme-set="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+      <button class="opt" data-theme-set="auto" title="Auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg></button>
+      <button class="opt" data-theme-set="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="kicker">Claude Code Skill · v1.0</div>
+    <h1>dual-plan<br><em>One plan, two artifacts.</em></h1>
+    <p class="lede">寫實作計畫的時候同時產出 <code style="background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.7em;">plan.md</code>(給 AI 執行用)和 <code style="background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.7em;">plan.html</code>(給人類討論用)。MD 是正本,HTML 是 view,單向 render,不會同步出問題。</p>
+    <div class="meta">
+      <span><span class="k">SKILL</span> · dual-plan v1.1</span>
+      <span><span class="k">TRIGGER</span> · /dual-plan</span>
+      <span><span class="k">SCOPE</span> · user-level</span>
+      <span><span class="k">DEPS</span> · python 3.13+ · marked + mermaid (CDN)</span>
+    </div>
+  </div>
+
+  <!-- I · CONCEPT -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">I</div>
+      <h2 class="section-title">概念<small>The Concept · Why Two Files</small></h2>
+    </div>
+    <div class="prose">
+      <p>Markdown 對 AI 友善(token 便宜、易 diff、易 stream),HTML 對人類友善(視覺豐富、可分享、易讀)。這個 skill 不會同時維護兩份檔(那會 drift),而是把它們當成<strong>同一份內容的兩個 render target</strong>。</p>
+    </div>
+    <svg class="figure-svg" viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="page-grad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="var(--bg)" stop-opacity="1"/><stop offset="100%" stop-color="var(--surface-2)" stop-opacity="1"/></linearGradient>
+        <marker id="arr-svg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/></marker>
+      </defs>
+      <g>
+        <rect x="290" y="20" width="120" height="44" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="350" y="40" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="1.5" fill="var(--accent)">SOURCE OF TRUTH</text>
+        <text x="350" y="56" text-anchor="middle" font-family="JetBrains Mono" font-size="13" font-weight="500" fill="var(--ink)">plan.md</text>
+      </g>
+      <path d="M 320 64 Q 320 100 180 100" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr-svg)"/>
+      <path d="M 380 64 Q 380 100 520 100" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr-svg)"/>
+      <g>
+        <rect x="40" y="115" width="240" height="170" rx="4" fill="url(#page-grad)" stroke="var(--ink-faint)" stroke-width="1"/>
+        <text x="56" y="138" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" letter-spacing="1.2">VIEW · 01 · MARKDOWN</text>
+        <line x1="56" y1="146" x2="264" y2="146" stroke="var(--rule)" stroke-width="1"/>
+        <text x="56" y="166" font-family="JetBrains Mono" font-size="11" fill="var(--ink)" font-weight="600"># Plan Title</text>
+        <text x="56" y="184" font-family="JetBrains Mono" font-size="10" fill="var(--ink-soft)">## Goal</text>
+        <text x="56" y="200" font-family="JetBrains Mono" font-size="10" fill="var(--ink-soft)">Make the thing work...</text>
+        <text x="56" y="218" font-family="JetBrains Mono" font-size="10" fill="var(--ink-soft)">## Steps</text>
+        <text x="56" y="234" font-family="JetBrains Mono" font-size="10" fill="var(--ink-soft)">1. First do X</text>
+        <text x="56" y="250" font-family="JetBrains Mono" font-size="10" fill="var(--ink-soft)">2. Then Y</text>
+        <text x="56" y="266" font-family="JetBrains Mono" font-size="10" fill="var(--ink-soft)">3. Finally Z</text>
+        <g transform="translate(160, 295)">
+          <circle r="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.2"/>
+          <text x="0" y="3" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--ink)">AI</text>
+          <text x="16" y="3" font-family="Source Sans 3" font-size="11" fill="var(--ink-soft)" font-style="italic">reads this</text>
+        </g>
+      </g>
+      <g>
+        <rect x="420" y="115" width="240" height="170" rx="4" fill="url(#page-grad)" stroke="var(--ink-faint)" stroke-width="1"/>
+        <text x="436" y="138" font-family="JetBrains Mono" font-size="9" fill="var(--ink-faint)" letter-spacing="1.2">VIEW · 02 · HTML</text>
+        <line x1="436" y1="146" x2="644" y2="146" stroke="var(--rule)" stroke-width="1"/>
+        <text x="436" y="170" font-family="Fraunces" font-size="16" fill="var(--ink)" font-weight="500">Plan Title</text>
+        <text x="436" y="190" font-family="Source Sans 3" font-size="10" fill="var(--accent)" font-weight="600" letter-spacing="0.5">GOAL</text>
+        <rect x="436" y="195" width="180" height="3" rx="1.5" fill="var(--accent-soft)"/>
+        <rect x="436" y="201" width="140" height="3" rx="1.5" fill="var(--accent-soft)"/>
+        <g transform="translate(436, 215)">
+          <rect width="36" height="22" rx="3" fill="var(--surface-2)" stroke="var(--accent)" stroke-width="1"/>
+          <text x="18" y="15" text-anchor="middle" font-family="Source Sans 3" font-size="8" fill="var(--ink)">X</text>
+          <path d="M 38 11 L 56 11" stroke="var(--accent)" stroke-width="1" marker-end="url(#arr-svg)"/>
+          <rect x="58" y="0" width="36" height="22" rx="3" fill="var(--surface-2)" stroke="var(--accent)" stroke-width="1"/>
+          <text x="76" y="15" text-anchor="middle" font-family="Source Sans 3" font-size="8" fill="var(--ink)">Y</text>
+          <path d="M 96 11 L 114 11" stroke="var(--accent)" stroke-width="1" marker-end="url(#arr-svg)"/>
+          <rect x="116" y="0" width="36" height="22" rx="3" fill="var(--surface-2)" stroke="var(--accent)" stroke-width="1"/>
+          <text x="134" y="15" text-anchor="middle" font-family="Source Sans 3" font-size="8" fill="var(--ink)">Z</text>
+        </g>
+        <g transform="translate(436, 250)">
+          <circle cx="6" cy="6" r="5" fill="var(--accent)"/>
+          <circle cx="20" cy="6" r="5" fill="var(--accent-2)"/>
+          <circle cx="34" cy="6" r="5" fill="var(--ink-soft)"/>
+          <text x="50" y="10" font-family="Source Sans 3" font-size="10" fill="var(--ink-soft)" font-style="italic">color · diagram · structure</text>
+        </g>
+        <g transform="translate(540, 295)">
+          <circle r="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.2"/>
+          <text x="0" y="3" text-anchor="middle" font-family="Source Sans 3" font-size="9" fill="var(--ink)">人</text>
+          <text x="16" y="3" font-family="Source Sans 3" font-size="11" fill="var(--ink-soft)" font-style="italic">reads this</text>
+        </g>
+      </g>
+    </svg>
+    <div class="figure-caption"><strong>FIG. 01</strong>同一份 plan.md,在 AI 與人類面前以兩種形態呈現</div>
+  </section>
+
+  <!-- II · WHEN TO USE -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">II</div>
+      <h2 class="section-title">什麼時候該用<small>When to Fire · When to Skip</small></h2>
+    </div>
+    <div class="matrix">
+      <div class="matrix-cell yes">
+        <span class="tag">適用</span>
+        <h4>Fire</h4>
+        <ul>
+          <li>使用者打 <code style="background:transparent;border:none;padding:0;">/dual-plan</code></li>
+          <li>多步驟 feature 設計、架構決策</li>
+          <li>需要拍板的取捨與方向</li>
+          <li>「幫我規劃 / plan / 設計 X」</li>
+          <li>plan mode + 任務 ≥ 30 分鐘</li>
+        </ul>
+      </div>
+      <div class="matrix-cell no">
+        <span class="tag">不適用</span>
+        <h4>Skip</h4>
+        <ul>
+          <li>單行 bug fix、改變數名</li>
+          <li>純探索 / 純問答</li>
+          <li>已有 plan,只是要執行</li>
+          <li>auto mode 下的 routine 任務</li>
+          <li>使用者要的是「直接做」</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- III · HOW TO USE -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">III</div>
+      <h2 class="section-title">怎麼用<small>How to Use · 3 Steps</small></h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h4>觸發 skill</h4>
+          <p>對 Claude Code 打 <code>/dual-plan</code> 加上你想規劃的事。例如「<code>/dual-plan 加一個使用者通知偏好的設定頁</code>」。或者只是說「幫我規劃 X」也會觸發。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h4>在 HTML 上看計畫、給回饋</h4>
+          <p>Claude 會把計畫寫成 <code>plans/&lt;date&gt;-&lt;slug&gt;/plan.md</code>,並 render 成 <code>plan.html</code>。打開 HTML 在瀏覽器看(雙擊即可),有意見就回到 Claude Code 講。Claude 會改 MD 並重新 render。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h4>說「好,開始做」</h4>
+          <p>計畫定稿後說「approve / 好 / go / 開始做」,Claude 就會根據 <code>plan.md</code> 執行。從這一步開始 plan 凍結;若要改請先停下,重新進入討論模式。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IV · FILE LAYOUT -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">IV</div>
+      <h2 class="section-title">檔案結構<small>What Gets Generated · Where</small></h2>
+    </div>
+    <div class="prose">
+      <p>每個 plan 自成一個資料夾,放在當前 working directory 的 <code>plans/</code> 底下。<code>plan.html</code> 預設會被加入 <code>.gitignore</code>(diff 噪音太大,而且 HTML 隨時可從 MD 重 render)。<code>history/</code> 由 render script 自動維護,版本 bump 時自動 snapshot 舊版。</p>
+    </div>
+    <div class="tree"><span class="dim">&lt;cwd&gt;/</span>
+├── <span class="blue">plans/</span>
+│   ├── <span class="blue">2026-05-10-feature-x/</span>
+│   │   ├── <span class="red">plan.md</span>            <span class="annot">← AI 讀這份(canonical · 含 YAML frontmatter)</span>
+│   │   ├── plan.html          <span class="annot">← 人讀這份(由 render.py 產出,gitignored)</span>
+│   │   ├── <span class="blue">history/</span>           <span class="annot">← 自動 snapshot,版本 bump 時保存舊版</span>
+│   │   │   ├── v0.1.md
+│   │   │   └── v0.2.md
+│   │   └── attachments/       <span class="annot">← 截圖、reference(可選)</span>
+│   └── <span class="blue">2026-05-12-other-thing/</span>
+│       └── ...
+└── <span class="dim">.gitignore</span>            <span class="annot">← skill 自動加入: plans/**/plan.html</span></div>
+  </section>
+
+  <!-- V · ARCHITECTURE -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">V</div>
+      <h2 class="section-title">技術架構<small>How It Works Under the Hood</small></h2>
+    </div>
+    <div class="prose">
+      <p>Skill 安裝在 user-level:</p>
+    </div>
+    <div class="tree"><span class="dim">~/.claude/skills/dual-plan/</span>
+├── <span class="red">SKILL.md</span>                 <span class="annot">← skill 主體(Claude 讀這份決定怎麼做)</span>
+├── <span class="red">render.py</span>                <span class="annot">← MD → HTML render script(stdlib only)</span>
+├── README.html              <span class="annot">← 你正在看這份</span>
+└── <span class="blue">templates/</span>
+    ├── plan-render.html     <span class="annot">← render template(每份 plan.html 的母版)</span>
+    └── plan.md.skel         <span class="annot">← 新 plan 起手式 skeleton(含 frontmatter)</span></div>
+    <div class="prose">
+      <p><strong>Render 流程</strong>:Claude 執行 <code>python ~/.claude/skills/dual-plan/render.py path/to/plan.md</code>,script 自動處理:讀 frontmatter → 取 title/version/slug → 讀 template → 替換 title / masthead / timestamp / 內嵌 MD → 寫 plan.html。瀏覽器打開後,內建的 marked + mermaid CDN 會把 markdown render 成你看到的版本。</p>
+      <p><strong>自動版本 snapshot</strong>:render.py 會檢查舊 plan.html,若內嵌的 MD 版本與 frontmatter 新版本不同,自動把舊版 MD 抽出來存到 <code>history/v&lt;old&gt;.md</code>。完全自動,無須手動備份。</p>
+      <p><strong>無 toolchain</strong>:render.py 只用 Python stdlib,template 用 CDN 載 marked + mermaid。沒有 build step、沒有 server。雙擊 HTML 在 file:// 協定下就能跑。</p>
+      <p><strong>內建 bug 修正</strong>:template 包含一個 markdown pre-processor,會偵測 raw HTML block 內的空白行並用 <code>&lt;!----&gt;</code> 取代,避免 marked 把 SVG 內容當成新的 markdown 解析。</p>
+    </div>
+  </section>
+
+  <!-- VI · CUSTOMIZATION -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">VI</div>
+      <h2 class="section-title">自訂<small>Customization</small></h2>
+    </div>
+    <div class="prose">
+      <p>三個常見的調整方向:</p>
+      <p><strong>改視覺風格</strong>:編輯 <code>templates/plan-render.html</code> 開頭的 <code>:root { --bg, --ink, --accent ... }</code> CSS 變數。改字型則調整 <code>&lt;link&gt;</code> 的 Google Fonts URL 跟 <code>font-family</code>。</p>
+      <p><strong>改觸發行為</strong>:編輯 <code>SKILL.md</code> 開頭的 <code>description</code> frontmatter。Claude 用這段判斷什麼時候自動建議使用這個 skill,寫得越具體觸發越精準。</p>
+      <p><strong>新增豐富互動</strong>:在 <code>plan.md</code> 內可直接寫 raw HTML(SVG 插畫、slider 控件、Copy-as-Prompt 按鈕等)。template 的 CSS 已經預備好對應的 <code>.figure</code> / <code>.tuner</code> / <code>.slider</code> / <code>.export-btn</code> 樣式可以直接用。</p>
+      <p><strong>frontmatter 標準化</strong>:每份 <code>plan.md</code> 開頭有 YAML frontmatter(<code>title / version / status / created / updated / slug</code>),render.py 用它驅動標題、masthead、與版本 snapshot。skeleton 在 <code>templates/plan.md.skel</code>。</p>
+      <p><strong>注意</strong>:在 <code>plan.md</code> 寫 raw HTML 區塊時,<strong>內部不要放空白行</strong>。template 已經有 pre-processor 修正,但寫得緊湊比較保險。</p>
+    </div>
+  </section>
+
+  <!-- VII · FAQ -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">VII</div>
+      <h2 class="section-title">FAQ</h2>
+    </div>
+    <div>
+      <div class="faq-item">
+        <div class="faq-q">為什麼不直接用 Markdown 就好?</div>
+        <div class="faq-a">超過 100 行的 markdown 多數人不會讀,自己也容易跳過。HTML 可加圖、加結構、加顏色、可分享,人類讀的比率高很多 — 而 plan 沒有人讀就等於沒寫。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">為什麼不直接用 HTML 就好,連 MD 都不要?</div>
+        <div class="faq-a">AI 執行 plan 時讀 HTML 會多吃 2-4 倍 token,且 diff 對 review 不友善。MD 是 canonical,HTML 是 view,各司其職。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">改了 HTML 之後 MD 會不會被反向更新?</div>
+        <div class="faq-a">不會,而且不該會。改請改 MD,讓 Claude 改完之後重新 render HTML。HTML 是「render 的結果」,不是 source。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">為什麼 HTML 要 gitignore?</div>
+        <div class="faq-a">HTML 的 diff 噪音太大,review 時根本沒人看;且 HTML 隨時可從 MD 重 render,沒有保留必要。MD 進 git,留歷史紀錄即可。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">需要安裝什麼?</div>
+        <div class="faq-a">不用。template 用 CDN 載 <code>marked</code> 和 <code>mermaid</code>,雙擊 HTML 就跑。前提是電腦能上網。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">能離線用嗎?</div>
+        <div class="faq-a">目前不行(CDN 依賴)。如果有需求可以把 marked 和 mermaid 下載到本地,改 template 引用 local 檔。但常見情境(寫 plan 通常有網)目前夠用。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">執行中 plan 改了會怎樣?</div>
+        <div class="faq-a">不處理。skill 文件有寫:execute 階段 plan 凍結,要改請停下重新討論。如果你在 AI 執行到一半時改了 plan.md,當下執行不會中斷;下一輪 AI 才會看到新版。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">能不能改成全自動,不需要 approve?</div>
+        <div class="faq-a">可以,但不建議 — 這個 skill 的核心價值就是「人類能在執行前看清楚計畫」。如果你要全自動,根本不需要 dual-plan,直接讓 AI 執行就好。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><code>history/</code> 裡的舊版本要不要進 git?</div>
+        <div class="faq-a">建議進 git。<code>plan.html</code> 因為 diff 太吵被 gitignore,但 <code>plan.md</code> 與 <code>history/v*.md</code> 都是 canonical 文字,進 git 留歷史是合理的(且比 git tag/branch 輕量)。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">render.py 需要安裝什麼套件嗎?</div>
+        <div class="faq-a">不用。只用 Python 3 stdlib(<code>re</code>、<code>pathlib</code>、<code>datetime</code>、<code>html</code>)。Python 3.13+ 測過。frontmatter parser 是手寫的小型 YAML 子集,不依賴 PyYAML。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">如果 Python 不能跑怎麼辦?</div>
+        <div class="faq-a">Claude 可以手刻 HTML(讀 template、做 4 個替換、寫 plan.html)當 fallback,但會多吃 ~19 KB context per render,且失去自動 snapshot。優先用 render.py。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIII · CHANGELOG -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">VIII</div>
+      <h2 class="section-title">變更紀錄<small>Changelog</small></h2>
+    </div>
+    <div class="prose">
+      <p>記錄 skill 本身的演進。新功能、breaking change、痛點修復都會寫在這裡。</p>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" style="font-style:normal;">v1.1 — 2026-05-10 · dogfooding 後優化</div>
+      <div class="faq-a">
+        第一次實際用 dual-plan 規劃(v0.1 → v0.3 三輪 iterate)後發現的痛點修復。主要改動:
+        <ul style="margin-top:8px; padding-left:20px;">
+          <li>新增 <code>render.py</code> —— 取代 Claude 手刻 HTML,每次 render 省 ~19 KB context、自動處理 timestamp / title / masthead 替換</li>
+          <li>新增 YAML frontmatter 必填規範(<code>title / version / status / created / updated / slug</code>)</li>
+          <li>新增自動版本 snapshot 機制 —— render.py 從舊 <code>plan.html</code> 抽 MD 存到 <code>history/v&lt;old&gt;.md</code>,完全無感</li>
+          <li>新增 <code>templates/plan.md.skel</code> —— 含 frontmatter 的 plan 起手式</li>
+          <li>SKILL.md re-render policy 改成「edit batch 結束才 render」(避免 spam render)</li>
+          <li>修 Windows console cp950 編碼讓 <code>·</code> 與 CJK 不亂碼</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" style="font-style:normal;">v1.0 — 2026-05-10 · initial release</div>
+      <div class="faq-a">
+        Skill 從零打造。核心結構:<code>SKILL.md</code> + <code>templates/plan-render.html</code> 母版 + README。MD 是 source of truth,HTML 是 view。Render 由 Claude 手刻(後來在 v1.1 改成 script)。
+        <ul style="margin-top:8px; padding-left:20px;">
+          <li>受 Thariq《Using Claude Code: The Unreasonable Effectiveness of HTML》啟發</li>
+          <li>單檔 HTML + CDN 載 marked + mermaid,無 toolchain</li>
+          <li>內建 marked tokenizer fix(raw HTML 區塊空白行 bug)</li>
+          <li>自動 gitignore 處理(首次 render 時加入 <code>plans/**/plan.html</code>)</li>
+          <li>theme toggle(light / auto / dark + localStorage 記憶)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLOPHON -->
+  <footer class="colophon">
+    <div><strong>Skill</strong>~/.claude/skills/dual-plan/</div>
+    <div><strong>Template</strong>templates/plan-render.html</div>
+    <div><strong>Inspired by</strong>Thariq · "Unreasonable Effectiveness of HTML"</div>
+    <div><strong>Set in</strong>Fraunces · Source Sans 3 · JetBrains Mono</div>
+  </footer>
+
+</div>
+
+<script>
+  const THEME_KEY = 'dual-plan-theme';
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    document.querySelectorAll('.theme-toggle .opt').forEach(b => {
+      b.classList.toggle('active', b.dataset.themeSet === mode);
+    });
+    try { localStorage.setItem(THEME_KEY, mode); } catch (e) {}
+  }
+  document.querySelectorAll('.theme-toggle .opt').forEach(b => {
+    b.addEventListener('click', () => applyTheme(b.dataset.themeSet));
+  });
+  let stored = 'auto';
+  try { stored = localStorage.getItem(THEME_KEY) || 'auto'; } catch (e) {}
+  applyTheme(stored);
+</script>
+
+</body>
+</html>

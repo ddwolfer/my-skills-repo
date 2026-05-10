@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plasma Waves Shader</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+        }
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+        #canvas-container {
+            flex: 1;
+            position: relative;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        #controls {
+            width: 320px;
+            background: white;
+            padding: 24px;
+            overflow-y: auto;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #191919;
+        }
+        .description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #191919;
+            margin-bottom: 8px;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #191919;
+            cursor: pointer;
+        }
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .value-display {
+            display: inline-block;
+            font-size: 12px;
+            color: #666;
+            margin-left: 8px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #191919;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        button:hover {
+            background: #333;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+            margin: 24px 0 12px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas-container"></div>
+        <div id="controls">
+            <h1>Plasma Waves</h1>
+            <p class="description">Undulating energy fields created by combining multiple sine waves at different frequencies.</p>
+            
+            <div class="section-title">Parameters</div>
+            
+            <div class="control-group">
+                <label>Speed</label>
+                <input type="range" id="speed" min="0" max="2" step="0.1" value="1.0">
+                <span class="value-display" id="speed-value">1.0</span>
+            </div>
+            
+            <div class="control-group">
+                <label>Frequency</label>
+                <input type="range" id="frequency" min="1" max="20" step="0.5" value="5.0">
+                <span class="value-display" id="frequency-value">5.0</span>
+            </div>
+            
+            <div class="control-group">
+                <label>Complexity</label>
+                <input type="range" id="complexity" min="1" max="5" step="1" value="3">
+                <span class="value-display" id="complexity-value">3</span>
+            </div>
+            
+            <div class="section-title">Colors</div>
+            
+            <div class="control-group">
+                <label>Color 1</label>
+                <input type="color" id="color1" value="#ff0080">
+            </div>
+            
+            <div class="control-group">
+                <label>Color 2</label>
+                <input type="color" id="color2" value="#00ffff">
+            </div>
+            
+            <div class="section-title">Actions</div>
+            <button onclick="resetParameters()">Reset to Defaults</button>
+            <button onclick="downloadImage()">Download PNG</button>
+        </div>
+    </div>
+
+    <script>
+        // Shader parameters
+        const params = {
+            speed: 1.0,
+            frequency: 5.0,
+            complexity: 3.0,
+            color1: new THREE.Color(0xff0080),
+            color2: new THREE.Color(0x00ffff),
+        };
+
+        // Three.js setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+        
+        const container = document.getElementById('canvas-container');
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        // Shader material
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                u_time: { value: 0 },
+                u_resolution: { value: new THREE.Vector2(container.clientWidth, container.clientHeight) },
+                u_speed: { value: params.speed },
+                u_frequency: { value: params.frequency },
+                u_complexity: { value: params.complexity },
+                u_color1: { value: params.color1 },
+                u_color2: { value: params.color2 },
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform float u_time;
+                uniform vec2 u_resolution;
+                uniform float u_speed;
+                uniform float u_frequency;
+                uniform float u_complexity;
+                uniform vec3 u_color1;
+                uniform vec3 u_color2;
+                
+                varying vec2 vUv;
+                
+                void main() {
+                    vec2 uv = vUv * 2.0 - 1.0;
+                    uv.x *= u_resolution.x / u_resolution.y;
+                    
+                    float t = u_time * u_speed;
+                    
+                    // Combine multiple sine waves
+                    float value = 0.0;
+                    for(float i = 1.0; i <= 5.0; i++) {
+                        if(i > u_complexity) break;
+                        
+                        float freq = u_frequency * i * 0.5;
+                        value += sin(uv.x * freq + t * i * 0.3) * 0.5;
+                        value += cos(uv.y * freq + t * i * 0.4) * 0.5;
+                        value += sin((uv.x + uv.y) * freq * 0.5 + t * i * 0.2) * 0.3;
+                    }
+                    
+                    // Normalize and smooth
+                    value = value / u_complexity;
+                    value = value * 0.5 + 0.5;
+                    
+                    // Color gradient
+                    vec3 color = mix(u_color1, u_color2, value);
+                    
+                    gl_FragColor = vec4(color, 1.0);
+                }
+            `
+        });
+
+        // Create plane
+        const geometry = new THREE.PlaneGeometry(2, 2);
+        const plane = new THREE.Mesh(geometry, material);
+        scene.add(plane);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            material.uniforms.u_time.value = performance.now() / 1000;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            renderer.setSize(width, height);
+            material.uniforms.u_resolution.value.set(width, height);
+        });
+
+        // Parameter update functions
+        function updateParam(name, value) {
+            params[name] = parseFloat(value);
+            material.uniforms['u_' + name].value = params[name];
+            document.getElementById(name + '-value').textContent = value;
+        }
+
+        function updateColor(name, value) {
+            params[name].setStyle(value);
+            material.uniforms['u_' + name].value = params[name];
+        }
+
+        // Reset function
+        function resetParameters() {
+            document.getElementById('speed').value = 1.0;
+            updateParam('speed', 1.0);
+            
+            document.getElementById('frequency').value = 5.0;
+            updateParam('frequency', 5.0);
+            
+            document.getElementById('complexity').value = 3;
+            updateParam('complexity', 3);
+            
+            document.getElementById('color1').value = '#ff0080';
+            updateColor('color1', '#ff0080');
+            
+            document.getElementById('color2').value = '#00ffff';
+            updateColor('color2', '#00ffff');
+        }
+
+        // Download function
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'plasma-waves.png';
+            link.href = renderer.domElement.toDataURL();
+            link.click();
+        }
+
+        // Initialize UI
+        document.getElementById('speed').addEventListener('input', (e) => {
+            updateParam('speed', e.target.value);
+        });
+        
+        document.getElementById('frequency').addEventListener('input', (e) => {
+            updateParam('frequency', e.target.value);
+        });
+        
+        document.getElementById('complexity').addEventListener('input', (e) => {
+            updateParam('complexity', e.target.value);
+        });
+        
+        document.getElementById('color1').addEventListener('input', (e) => {
+            updateColor('color1', e.target.value);
+        });
+        
+        document.getElementById('color2').addEventListener('input', (e) => {
+            updateColor('color2', e.target.value);
+        });
+    </script>
+</body>
+</html>

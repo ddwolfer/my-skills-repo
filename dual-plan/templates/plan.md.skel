@@ -1,0 +1,82 @@
+---
+title: <PLAN TITLE — short, < 60 chars>
+version: 0.1
+status: draft        # draft | approved | archived
+created: <YYYY-MM-DD>
+updated: <YYYY-MM-DD>
+slug: <YYYY-MM-DD>-<short-kebab-slug>
+# Render via dual-plan template only — uses a custom marked tokenizer
+# fix for raw HTML blocks. Vanilla CommonMark renderers may break SVG.
+---
+
+# <PLAN TITLE>
+
+<One-paragraph summary of what this plan is and why. Keep tight — the
+masthead + h1 already say the title, so this is the "elevator pitch".>
+
+> **v0.1 變更摘要**:initial draft.
+
+## 目標
+
+<One paragraph: what's the outcome this plan is trying to achieve.
+Avoid restating the title. State the success criterion if you can.>
+
+## 已定錨決策
+
+<Table of decisions already locked in. Useful for downstream multi-agent
+to know what NOT to re-debate.>
+
+| 項目 | 決策 | 來源 |
+|------|------|------|
+| ... | ... | ... |
+
+## 核心策略 / 方法
+
+<How we're going to do it. Mermaid diagrams welcome.>
+
+```mermaid
+flowchart LR
+  A[Step] --> B[Step]
+```
+
+## 步驟 / Roadmap
+
+<Concrete sequence. Use ordered list or gantt.>
+
+1. ...
+2. ...
+3. ...
+
+## 待 review 的開放決策
+
+<Mark with ❓. Each Q gets a number so user can answer "Q3: yes" etc.>
+
+- [ ] **Q1**: <question>
+- [ ] **Q2**: <question>
+
+## 不在範圍
+
+<Explicit non-goals. Avoid scope creep.>
+
+- ❌ <thing>
+- ❌ <thing>
+
+## 主要風險
+
+| 風險 | 影響 | 緩解策略 |
+|------|------|---------|
+| ... | ... | ... |
+
+## 驗證 / 評估指標
+
+- [ ] <how we'll know this worked>
+
+---
+
+## 變更紀錄
+
+**v0.1(<YYYY-MM-DD>)** — initial draft
+
+---
+
+**狀態**:草案 v0.1
